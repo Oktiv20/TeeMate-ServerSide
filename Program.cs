@@ -97,8 +97,136 @@ app.MapPut("/api/user/{id}", (TeeMateDbContext db, int id, User user) =>
 });
 
 
-// Delete A User
+
+// TEE TIME ENDPOINTS
 
 
+// Get All Tee Times
+
+app.MapGet("/api/teeTimes", (TeeMateDbContext db) =>
+{
+    List<TeeTime> teeTimes = db.TeeTimes.Include(t => t.Users).ToList();
+    if (teeTimes.Count == 0)
+    {
+        return Results.NotFound("No Tee Times found.");
+    }
+
+    return Results.Ok(teeTimes);
+});
+
+
+// Get Single Tee Time
+
+app.MapGet("/api/teeTimes/{id}", (TeeMateDbContext db, int id) =>
+{
+    TeeTime teeTime = db.TeeTimes
+    .Include(t => t.Users)
+    .FirstOrDefault(t => t.Id == id);
+    if (teeTime == null)
+    {
+        return Results.NotFound("No User found.");
+    }
+
+    return Results.Ok(teeTime);
+});
+
+
+// Get User's Tee Time
+
+app.MapGet("/api/teeTimeUser/{uid}", (TeeMateDbContext db, string uid) =>
+{
+    var user = db.Users
+    .Include(u => u.TeeTimes)
+    .ThenInclude(t => t.SkillLevel)
+    .FirstOrDefault(u => u.Uid == uid);
+
+    if (user == null)
+    {
+        return Results.NotFound("User not found");
+    }
+
+    var teeTimes = user.TeeTimes.ToList();
+    return Results.Ok(teeTimes);
+});
+
+
+// Create Tee Time
+
+app.MapPost("/api/teeTimes", (TeeMateDbContext db, TeeTime teeTime) =>
+{
+    try
+    {
+        db.Add(teeTime);
+        db.SaveChanges();
+        return Results.Created($"/api/teeTimes/{teeTime.Id}", teeTime);
+    }
+    catch (DbUpdateException)
+    {
+        return Results.NotFound("Issue creating Tee Time.");
+    }
+});
+
+
+// Update Tee Time
+
+app.MapPut("/api/teeTimes/{teeTimeId}", (TeeMateDbContext db, int teeTimeId, TeeTime teeTime) =>
+{
+    TeeTime updateTeeTime = db.TeeTimes.SingleOrDefault(t => t.Id == teeTimeId);
+    if (updateTeeTime == null)
+    {
+        return Results.NotFound("No Tee Time to update.");
+    }
+    updateTeeTime.Date = teeTime.Date;
+    updateTeeTime.Time = teeTime.Time;
+    updateTeeTime.Location = teeTime.Location;
+    updateTeeTime.NumOfPlayers = teeTime.NumOfPlayers;
+    updateTeeTime.CourseId = teeTime.CourseId;
+
+    db.SaveChanges();
+    return Results.NoContent();
+});
+
+
+// Delete Tee Time
+
+app.MapDelete("/api/teeTimes/{teeTimeId}", (TeeMateDbContext db, int teeTimeId) =>
+{
+    TeeTime deleteTeeTime = db.TeeTimes.FirstOrDefault(t => t.Id == teeTimeId);
+    if (deleteTeeTime == null)
+    {
+        return Results.NotFound("No Tee Time found to delete.");
+    }
+
+    db.Remove(deleteTeeTime);
+    db.SaveChanges();
+    return Results.Ok(deleteTeeTime);
+});
+
+
+// Add User to Tee Time
+
+app.MapPost("/api/teeTimeUser/{teeTimeId}/{userId}", (TeeMateDbContext db, int teeTimeId, int userId) =>
+{
+    var teeTime = db.TeeTimes
+    .Include(t => t.Users)
+    .FirstOrDefault(t => t.Id == teeTimeId);
+
+    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+    if (teeTime == null || user == null)
+    {
+        return Results.NotFound("Tee Time or User not found.");
+    }
+
+    if (teeTime.Users.Any(u => u.Id == userId))
+    {
+        return Results.BadRequest("User has already joined this Tee Time.");
+    }
+
+    teeTime.Users.Add(user);
+    db.SaveChanges();
+
+    return Results.Ok(user);
+});
 
 app.Run();
