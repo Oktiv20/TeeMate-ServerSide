@@ -137,7 +137,6 @@ app.MapGet("/api/teeTimeUser/{uid}", (TeeMateDbContext db, string uid) =>
 {
     var user = db.Users
     .Include(u => u.TeeTimes)
-    .ThenInclude(t => t.SkillLevel)
     .FirstOrDefault(u => u.Uid == uid);
 
     if (user == null)
@@ -227,6 +226,24 @@ app.MapPost("/api/teeTimeUser/{teeTimeId}/{userId}", (TeeMateDbContext db, int t
     db.SaveChanges();
 
     return Results.Ok(user);
+});
+
+
+
+// SKILL LEVEL ENDPOINTS
+
+
+// Get Skill Levels
+
+app.MapGet("/api/skillLevels", (TeeMateDbContext db) =>
+{
+    List<SkillLevel> skillLevels = db.SkillLevels.ToList();
+    if (skillLevels.Count == 0)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(skillLevels);
 });
 
 app.Run();
