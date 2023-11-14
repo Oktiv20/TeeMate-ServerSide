@@ -96,9 +96,4 @@ app.MapPut("/api/user/{id}", (TeeMateDbContext db, int id, User user) =>
     return Results.NoContent();
 });
 
-
-// Delete A User
-
-
-
 app.Run();
