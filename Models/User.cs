@@ -15,5 +15,7 @@
         public int SkillLevelId { get; set; }
         public SkillLevel? SkillLevel { get; set; }
         public List<TeeTime>? TeeTimes { get; set; }
+        public List<TeeTimeUser>? TeeTimeUsers { get; set; }
+
     }
 }
