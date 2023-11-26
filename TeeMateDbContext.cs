@@ -9,6 +9,7 @@ namespace TeeMate_ServerSide
         public DbSet<TeeTime> TeeTimes { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<SkillLevel> SkillLevels { get; set; }
+        public DbSet<TeeTimeUser> TeeTimeUsers { get; set; }
 
         public TeeMateDbContext(DbContextOptions<TeeMateDbContext> context) : base(context)
         {
@@ -17,6 +18,18 @@ namespace TeeMate_ServerSide
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            //modelBuilder.Entity<TeeTime>()
+            //    .HasMany(t => t.Users)
+            //    .WithMany(u => u.TeeTimes)
+            //    .UsingEntity(j => j.ToTable("TeeTimeUser"));
+
+            //modelBuilder.Entity<TeeTime>()
+            //    .HasMany(t => t.Users)
+            //    .WithMany(u => u.TeeTimes)
+            //    .UsingEntity(j => j.ToTable("TeeTimeUser"))
+            //    .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<User>().HasData(new User[]
             {
                 new User { Id = 1, FirstName = "Kyle", LastName = "Blunt", Age = 30, Handicap = "19", Availability = "Weekends", Transportation = "Cart", Clubs = "Callaway", ProfilePic = "Url.com", Uid = "abkeci83", SkillLevelId = 1 },
@@ -25,8 +38,8 @@ namespace TeeMate_ServerSide
 
             modelBuilder.Entity<TeeTime>().HasData(new TeeTime[]
             {
-                new TeeTime { Id = 1, Date = "11/13/23", Time = "1:00pm", Location = "Nashville, TN", NumOfPlayers = "3", CourseId = 1 },
-                new TeeTime { Id = 2, Date = "11/17/23", Time = "3:00pm", Location = "Nashville, TN", NumOfPlayers = "2", CourseId = 2 },
+                new TeeTime { Id = 1, Date = "11/13/23", Time = "1:00pm", Location = "Nashville, TN", NumOfPlayers = 3, CourseId = 1 },
+                new TeeTime { Id = 2, Date = "11/17/23", Time = "3:00pm", Location = "Nashville, TN", NumOfPlayers = 2, CourseId = 2 },
             });
 
             modelBuilder.Entity<Course>().HasData(new Course[]
