@@ -11,6 +11,5 @@
         public int CourseId { get; set; }
         public Course? Course { get; set; }
         public List<User>? Users { get; set; }
-        public List<TeeTimeUser>? TeeTimeUsers { get; set; }
     }
 }

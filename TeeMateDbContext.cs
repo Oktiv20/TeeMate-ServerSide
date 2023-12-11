@@ -9,7 +9,6 @@ namespace TeeMate_ServerSide
         public DbSet<TeeTime> TeeTimes { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<SkillLevel> SkillLevels { get; set; }
-        public DbSet<TeeTimeUser> TeeTimeUsers { get; set; }
 
         public TeeMateDbContext(DbContextOptions<TeeMateDbContext> context) : base(context)
         {
@@ -19,21 +18,23 @@ namespace TeeMate_ServerSide
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            //modelBuilder.Entity<TeeTime>()
-            //    .HasMany(t => t.Users)
-            //    .WithMany(u => u.TeeTimes)
-            //    .UsingEntity(j => j.ToTable("TeeTimeUser"));
+            //modelBuilder.Entity<TeeTimeUser>()
+            //.HasKey(ttu => new { ttu.UserId, ttu.TeeTimeId });
 
-            //modelBuilder.Entity<TeeTime>()
-            //    .HasMany(t => t.Users)
-            //    .WithMany(u => u.TeeTimes)
-            //    .UsingEntity(j => j.ToTable("TeeTimeUser"))
-            //    .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<TeeTimeUser>()
+            //    .HasOne(ttu => ttu.User)
+            //    .WithMany(u => u.TeeTimeUsers)
+            //    .HasForeignKey(ttu => ttu.UserId);
+
+            //modelBuilder.Entity<TeeTimeUser>()
+            //    .HasOne(ttu => ttu.TeeTime)
+            //    .WithMany(tt => tt.TeeTimeUsers)
+            //    .HasForeignKey(ttu => ttu.TeeTimeId);
 
             modelBuilder.Entity<User>().HasData(new User[]
             {
-                new User { Id = 1, FirstName = "Kyle", LastName = "Blunt", Age = 30, Handicap = "19", Availability = "Weekends", Transportation = "Cart", Clubs = "Callaway", ProfilePic = "Url.com", Uid = "abkeci83", SkillLevelId = 1 },
-                new User { Id = 2, FirstName = "Nathan", LastName = "Clover", Age = 34, Handicap = "14", Availability = "Anytime", Transportation = "Cart", Clubs = "Stix", ProfilePic = "Url.com", Uid = "abkeci83", SkillLevelId = 3 },
+                new User { Id = 1, FirstName = "Kyle", LastName = "Blunt", Age = 30, Handicap = "19", Availability = "Weekends", Transportation = "Cart", Clubs = "Callaway", ProfilePic = "Url.com", Uid = "WT3LyDpHoIcHJStxDZNPQWBFpxE2", SkillLevelId = 1 },
+                new User { Id = 2, FirstName = "Nathan", LastName = "Clover", Age = 32, Handicap = "14", Availability = "Anytime", Transportation = "Cart", Clubs = "Stix", ProfilePic = "Url.com", Uid = "abkeci83", SkillLevelId = 3 },
             });
 
             modelBuilder.Entity<TeeTime>().HasData(new TeeTime[]
