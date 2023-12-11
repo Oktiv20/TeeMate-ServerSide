@@ -5,7 +5,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace TeeMate_ServerSide.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialCreate4 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,8 @@ namespace TeeMate_ServerSide.Migrations
                     Date = table.Column<string>(type: "text", nullable: true),
                     Time = table.Column<string>(type: "text", nullable: true),
                     Location = table.Column<string>(type: "text", nullable: true),
-                    NumOfPlayers = table.Column<string>(type: "text", nullable: true),
+                    NumOfPlayers = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
                     CourseId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -144,11 +145,11 @@ namespace TeeMate_ServerSide.Migrations
 
             migrationBuilder.InsertData(
                 table: "TeeTimes",
-                columns: new[] { "Id", "CourseId", "Date", "Location", "NumOfPlayers", "Time" },
+                columns: new[] { "Id", "CourseId", "Date", "Location", "NumOfPlayers", "Time", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 1, "11/13/23", "Nashville, TN", "3", "1:00pm" },
-                    { 2, 2, "11/17/23", "Nashville, TN", "2", "3:00pm" }
+                    { 1, 1, "11/13/23", "Nashville, TN", 3, "1:00pm", 0 },
+                    { 2, 2, "11/17/23", "Nashville, TN", 2, "3:00pm", 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -156,8 +157,8 @@ namespace TeeMate_ServerSide.Migrations
                 columns: new[] { "Id", "Age", "Availability", "Clubs", "FirstName", "Handicap", "LastName", "ProfilePic", "SkillLevelId", "Transportation", "Uid" },
                 values: new object[,]
                 {
-                    { 1, 30, "Weekends", "Callaway", "Kyle", "19", "Blunt", "Url.com", 1, "Cart", "abkeci83" },
-                    { 2, 34, "Anytime", "Stix", "Nathan", "14", "Clover", "Url.com", 3, "Cart", "abkeci83" }
+                    { 1, 30, "Weekends", "Callaway", "Kyle", "19", "Blunt", "Url.com", 1, "Cart", "WT3LyDpHoIcHJStxDZNPQWBFpxE2" },
+                    { 2, 32, "Anytime", "Stix", "Nathan", "14", "Clover", "Url.com", 3, "Cart", "abkeci83" }
                 });
 
             migrationBuilder.CreateIndex(

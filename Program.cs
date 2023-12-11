@@ -86,27 +86,23 @@ app.MapPost("/api/users", (TeeMateDbContext db, User user) =>
 
 app.MapGet("/api/users", (TeeMateDbContext db) =>
 {
-    List<User> usersWithTeeTimes = db.Users
-    .Include(ttu => ttu.TeeTimeUsers)
-    .ThenInclude(u => u.TeeTime)
-    .ToList();
-
-    if (usersWithTeeTimes.Count == 0)
+    List<User> users = db.Users.Include(t => t.TeeTimes).ToList();
+    if (users.Count == 0)
     {
         return Results.NotFound("No users to be found.");
     }
 
-    return Results.Ok(usersWithTeeTimes);
+    return Results.Ok(users);
 });
 
 
 // Get User by Uid
 
-//app.MapGet("/api/user/{uid}", (TeeMateDbContext db, string uid) =>
-//{
-//    var user = db.Users.SingleOrDefault(u => u.Uid == uid);
-//    return user;
-//});
+app.MapGet("/api/user/{uid}", (TeeMateDbContext db, string uid) =>
+{
+    var user = db.Users.SingleOrDefault(u => u.Uid == uid);
+    return user;
+});
 
 
 // Get Single User by Id
@@ -114,8 +110,7 @@ app.MapGet("/api/users", (TeeMateDbContext db) =>
 app.MapGet("/api/users/{id}", (TeeMateDbContext db, int id) =>
 {
     var user = db.Users
-    .Include(ttu => ttu.TeeTimeUsers)
-    .ThenInclude(u => u.TeeTime)
+    .Include(u => u.TeeTimes)
     .SingleOrDefault(u => u.Id == id);
     if (user == null)
     {
@@ -159,10 +154,7 @@ app.MapPut("/api/users/{id}", (TeeMateDbContext db, int id, User user) =>
 
 app.MapGet("/api/teeTimes", (TeeMateDbContext db) =>
 {
-    List<TeeTime> teeTimes = db.TeeTimes
-    .Include(ttu => ttu.TeeTimeUsers)
-    .ThenInclude(u => u.User)
-    .ToList();
+    List<TeeTime> teeTimes = db.TeeTimes.Include(t => t.Users).ToList();
     if (teeTimes.Count == 0)
     {
         return Results.NotFound("No Tee Times found.");
@@ -177,12 +169,11 @@ app.MapGet("/api/teeTimes", (TeeMateDbContext db) =>
 app.MapGet("/api/teeTimes/{id}", (TeeMateDbContext db, int id) =>
 {
     TeeTime teeTime = db.TeeTimes
-    .Include(ttu => ttu.TeeTimeUsers)
-    .ThenInclude(t => t.User)
+    .Include(t => t.Users)
     .FirstOrDefault(t => t.Id == id);
     if (teeTime == null)
     {
-        return Results.NotFound("No User found.");
+        return Results.NotFound("No User found.");  
     }
 
     return Results.Ok(teeTime);
@@ -259,29 +250,55 @@ app.MapDelete("/api/teeTimes/{teeTimeId}", (TeeMateDbContext db, int teeTimeId) 
 
 // Add User to Tee Time
 
-app.MapPost("/api/teeTimeUsers/{teeTimeId}/{userId}", (TeeMateDbContext db, int teeTimeId, int userId, TeeTimeUser teeTimeUser) =>
+app.MapPost("/api/teeTimeUser/{teeTimeId}/{userId}", (TeeMateDbContext db, int teeTimeId, int userId) =>
 {
-    teeTimeUser.UserId = userId;
-    teeTimeUser.TeeTimeId = teeTimeId;
+    var teeTime = db.TeeTimes
+        .Include(t => t.Users)
+        .FirstOrDefault(t => t.Id == teeTimeId);
 
-    if (teeTimeUser == null)
+    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+    if (teeTime == null || user == null)
     {
         return Results.NotFound("Tee Time or User not found.");
     }
 
-    db.TeeTimeUsers.Add(teeTimeUser);
+    if (teeTime.Users.Any(u => u.Id == userId))
+    {
+        return Results.BadRequest("User has already joined this Tee Time.");
+    }
+
+    if (teeTime.NumOfPlayers == 4)
+    {
+        return Results.BadRequest("Tee Time is already full.");
+    }
+
+    // Add the user to the join table
+    teeTime.Users.Add(user);
     db.SaveChanges();
 
-    return Results.Created($"/api/teeTimeUsers/{teeTimeUser.Id}", teeTimeUser);
+    // Decrement the numOfPlayers
+    teeTime.NumOfPlayers -= 1;
+    db.SaveChanges();
+
+    var response = new
+    {
+        User = user,
+        NumOfPlayers = teeTime.NumOfPlayers
+    };
+
+    return Results.Ok(response);
 });
+
+
 
 
 // Delete User from Tee Time
 
-app.MapDelete("/api/teeTimeUser/{id}/{uid}", (TeeMateDbContext db, int id, string uid) =>
+app.MapDelete("/api/teeTimeUser/{teeTimeId}/{userId}", (TeeMateDbContext db, int teeTimeId, int userId) =>
 {
-    var teeTime = db.TeeTimes.Where(tt => tt.Id == id).Include(I => I.Users).FirstOrDefault();
-    var user = db.Users.Where(u => u.Uid == uid).FirstOrDefault();
+    var teeTime = db.TeeTimes.Where(tt => tt.Id == teeTimeId).Include(I => I.Users).FirstOrDefault();
+    var user = db.Users.Where(u => u.Id == userId).FirstOrDefault();
     if (teeTime == null)
     {
         return Results.NotFound("Not Found");
@@ -289,6 +306,16 @@ app.MapDelete("/api/teeTimeUser/{id}/{uid}", (TeeMateDbContext db, int id, strin
 
     teeTime.Users.Remove(user);
     db.SaveChanges();
+
+    teeTime.NumOfPlayers += 1;
+    db.SaveChanges();
+
+    var response = new
+    {
+        User = user,
+        NumOfPlayers = teeTime.NumOfPlayers
+    };
+
     return Results.NoContent();
 });
 
@@ -308,6 +335,53 @@ app.MapGet("/api/skillLevels", (TeeMateDbContext db) =>
     }
 
     return Results.Ok(skillLevels);
+});
+
+
+// Get A Single Skill Level
+
+app.MapGet("/api/skillLevels/{skillLevelId}", (TeeMateDbContext db, int skillLevelId) =>
+{
+    SkillLevel skillLevels = db.SkillLevels.FirstOrDefault(sk => sk.Id == skillLevelId);
+    if (skillLevels == null)
+    {
+        return Results.NotFound("No User found.");
+    }
+
+    return Results.Ok(skillLevels);
+});
+
+
+
+// COURSE ENDPOINTS
+
+
+// Get All Courses
+
+app.MapGet("/api/courses", (TeeMateDbContext db) =>
+{
+    List<Course> courses = db.Courses.ToList();
+    if (courses.Count == 0)
+    {
+        return Results.NotFound("No Courses found.");
+    }
+
+    return Results.Ok(courses);
+});
+
+
+// Get A Single Course
+
+
+app.MapGet("/api/courses/{courseId}", (TeeMateDbContext db, int courseId) =>
+{
+    Course courses = db.Courses.FirstOrDefault(c => c.Id == courseId);
+    if (courses == null)
+    {
+        return Results.NotFound("No User found.");
+    }
+
+    return Results.Ok(courses);
 });
 
 app.Run();

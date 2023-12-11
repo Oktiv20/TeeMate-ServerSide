@@ -232,25 +232,6 @@ namespace TeeMate_ServerSide.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TeeMate_ServerSide.Models.TeeTimeUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("TeeTimeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TeeTimeUsers");
-                });
-
             modelBuilder.Entity("TeeMate_ServerSide.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -308,12 +289,12 @@ namespace TeeMate_ServerSide.Migrations
                             ProfilePic = "Url.com",
                             SkillLevelId = 1,
                             Transportation = "Cart",
-                            Uid = "abkeci83"
+                            Uid = "WT3LyDpHoIcHJStxDZNPQWBFpxE2"
                         },
                         new
                         {
                             Id = 2,
-                            Age = 34,
+                            Age = 32,
                             Availability = "Anytime",
                             Clubs = "Stix",
                             FirstName = "Nathan",
@@ -324,21 +305,6 @@ namespace TeeMate_ServerSide.Migrations
                             Transportation = "Cart",
                             Uid = "abkeci83"
                         });
-                });
-
-            modelBuilder.Entity("TeeTimeTeeTimeUser", b =>
-                {
-                    b.Property<int>("TeeTimeUsersId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TeeTimesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TeeTimeUsersId", "TeeTimesId");
-
-                    b.HasIndex("TeeTimesId");
-
-                    b.ToTable("TeeTimeTeeTimeUser");
                 });
 
             modelBuilder.Entity("TeeTimeUser", b =>
@@ -354,21 +320,6 @@ namespace TeeMate_ServerSide.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("TeeTimeUser");
-                });
-
-            modelBuilder.Entity("TeeTimeUserUser", b =>
-                {
-                    b.Property<int>("TeeTimeUsersId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsersId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TeeTimeUsersId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("TeeTimeUserUser");
                 });
 
             modelBuilder.Entity("TeeMate_ServerSide.Models.TeeTime", b =>
@@ -393,41 +344,11 @@ namespace TeeMate_ServerSide.Migrations
                     b.Navigation("SkillLevel");
                 });
 
-            modelBuilder.Entity("TeeTimeTeeTimeUser", b =>
-                {
-                    b.HasOne("TeeMate_ServerSide.Models.TeeTimeUser", null)
-                        .WithMany()
-                        .HasForeignKey("TeeTimeUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TeeMate_ServerSide.Models.TeeTime", null)
-                        .WithMany()
-                        .HasForeignKey("TeeTimesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TeeTimeUser", b =>
                 {
                     b.HasOne("TeeMate_ServerSide.Models.TeeTime", null)
                         .WithMany()
                         .HasForeignKey("TeeTimesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TeeMate_ServerSide.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TeeTimeUserUser", b =>
-                {
-                    b.HasOne("TeeMate_ServerSide.Models.TeeTimeUser", null)
-                        .WithMany()
-                        .HasForeignKey("TeeTimeUsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

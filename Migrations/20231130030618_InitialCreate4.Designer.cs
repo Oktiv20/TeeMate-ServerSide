@@ -11,8 +11,8 @@ using TeeMate_ServerSide;
 namespace TeeMate_ServerSide.Migrations
 {
     [DbContext(typeof(TeeMateDbContext))]
-    [Migration("20231122004253_PlayersAreIntTeeTime")]
-    partial class PlayersAreIntTeeTime
+    [Migration("20231130030618_InitialCreate4")]
+    partial class InitialCreate4
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -202,6 +202,9 @@ namespace TeeMate_ServerSide.Migrations
                     b.Property<string>("Time")
                         .HasColumnType("text");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
@@ -216,7 +219,8 @@ namespace TeeMate_ServerSide.Migrations
                             Date = "11/13/23",
                             Location = "Nashville, TN",
                             NumOfPlayers = 3,
-                            Time = "1:00pm"
+                            Time = "1:00pm",
+                            UserId = 0
                         },
                         new
                         {
@@ -225,7 +229,8 @@ namespace TeeMate_ServerSide.Migrations
                             Date = "11/17/23",
                             Location = "Nashville, TN",
                             NumOfPlayers = 2,
-                            Time = "3:00pm"
+                            Time = "3:00pm",
+                            UserId = 0
                         });
                 });
 
@@ -286,12 +291,12 @@ namespace TeeMate_ServerSide.Migrations
                             ProfilePic = "Url.com",
                             SkillLevelId = 1,
                             Transportation = "Cart",
-                            Uid = "abkeci83"
+                            Uid = "WT3LyDpHoIcHJStxDZNPQWBFpxE2"
                         },
                         new
                         {
                             Id = 2,
-                            Age = 34,
+                            Age = 32,
                             Availability = "Anytime",
                             Clubs = "Stix",
                             FirstName = "Nathan",
