@@ -86,7 +86,10 @@ app.MapPost("/api/users", (TeeMateDbContext db, User user) =>
 
 app.MapGet("/api/users", (TeeMateDbContext db) =>
 {
-    List<User> users = db.Users.Include(t => t.TeeTimes).ToList();
+    List<User> users = db.Users
+    .Include(t => t.TeeTimes)
+    .Include(u => u.SkillLevel)
+    .ToList();
     if (users.Count == 0)
     {
         return Results.NotFound("No users to be found.");
@@ -110,6 +113,7 @@ app.MapGet("/api/user/{uid}", (TeeMateDbContext db, string uid) =>
 app.MapGet("/api/users/{id}", (TeeMateDbContext db, int id) =>
 {
     var user = db.Users
+    .Include(u => u.SkillLevel)
     .Include(u => u.TeeTimes)
     .SingleOrDefault(u => u.Id == id);
     if (user == null)
@@ -154,7 +158,10 @@ app.MapPut("/api/users/{id}", (TeeMateDbContext db, int id, User user) =>
 
 app.MapGet("/api/teeTimes", (TeeMateDbContext db) =>
 {
-    List<TeeTime> teeTimes = db.TeeTimes.Include(t => t.Users).ToList();
+    List<TeeTime> teeTimes = db.TeeTimes
+    .Include(t => t.Users)
+    .ThenInclude(u => u.SkillLevel)
+    .ToList();
     if (teeTimes.Count == 0)
     {
         return Results.NotFound("No Tee Times found.");
@@ -170,10 +177,11 @@ app.MapGet("/api/teeTimes/{id}", (TeeMateDbContext db, int id) =>
 {
     TeeTime teeTime = db.TeeTimes
     .Include(t => t.Users)
+        .ThenInclude(u => u.SkillLevel)
     .FirstOrDefault(t => t.Id == id);
     if (teeTime == null)
     {
-        return Results.NotFound("No User found.");  
+        return Results.NotFound("No User found.");
     }
 
     return Results.Ok(teeTime);
@@ -342,7 +350,9 @@ app.MapGet("/api/skillLevels", (TeeMateDbContext db) =>
 
 app.MapGet("/api/skillLevels/{skillLevelId}", (TeeMateDbContext db, int skillLevelId) =>
 {
-    SkillLevel skillLevels = db.SkillLevels.FirstOrDefault(sk => sk.Id == skillLevelId);
+    SkillLevel skillLevels = db.SkillLevels
+    .Include(u => u.Users)
+    .FirstOrDefault(sk => sk.Id == skillLevelId);
     if (skillLevels == null)
     {
         return Results.NotFound("No User found.");

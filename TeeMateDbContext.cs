@@ -11,7 +11,7 @@ namespace TeeMate_ServerSide
         public DbSet<SkillLevel> SkillLevels { get; set; }
 
         public TeeMateDbContext(DbContextOptions<TeeMateDbContext> context) : base(context)
-        {
+        {   
 
         }
 
